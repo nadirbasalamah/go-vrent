@@ -1,0 +1,62 @@
+type Car {
+  id: ID!
+  make: String!
+  name: String!
+  available: Boolean!
+}
+
+type User {
+  id: ID!
+  name: String!
+  reservation: Car
+}
+
+type Query {
+  cars: [Car!]!
+  users: [User!]!
+}
+
+input NewCar {
+  make: String!
+  name: String!
+  available: Boolean!
+}
+
+input EditCar {
+  carId: ID!
+  make: String!
+  name: String!
+  available: Boolean!
+}
+
+input DeleteCar {
+  carId: ID!
+}
+
+input NewUser {
+  username: String!
+  password: String!
+}
+
+input Login {
+  username: String!
+  password: String!
+}
+
+input RefreshTokenInput {
+  token: String!
+}
+
+input ReserveCar {
+  carId: ID!
+}
+
+type Mutation {
+  addCar(input: NewCar!): Car!
+  editCar(input: EditCar!): Car!
+  deleteCar(input: DeleteCar): ID!
+  addUser(input: NewUser!): String!
+  login(input: Login!): String!
+  refreshToken(input: RefreshTokenInput!): String!
+  reserveCar(input: ReserveCar!): User!
+}
