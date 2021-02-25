@@ -6,6 +6,7 @@ type Car struct {
 	ID        string `json:"id"`
 	Make      string `json:"make"`
 	Name      string `json:"name"`
+	Price     int    `json:"price"`
 	Available bool   `json:"available"`
 }
 
@@ -17,6 +18,7 @@ type EditCar struct {
 	CarID     string `json:"carId"`
 	Make      string `json:"make"`
 	Name      string `json:"name"`
+	Price     int    `json:"price"`
 	Available bool   `json:"available"`
 }
 
@@ -28,6 +30,7 @@ type Login struct {
 type NewCar struct {
 	Make      string `json:"make"`
 	Name      string `json:"name"`
+	Price     int    `json:"price"`
 	Available bool   `json:"available"`
 }
 

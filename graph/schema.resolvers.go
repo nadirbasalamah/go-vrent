@@ -20,9 +20,10 @@ func (r *mutationResolver) AddCar(ctx context.Context, input model.NewCar) (*mod
 	car := cars.Car{}
 	car.Make = input.Make
 	car.Name = input.Name
+	car.Price = input.Price
 
 	result := car.Add()
-	return &model.Car{ID: result.ID.Hex(), Make: result.Make, Name: result.Name, Available: result.Available}, nil
+	return &model.Car{ID: result.ID.Hex(), Make: result.Make, Name: result.Name, Price: result.Price, Available: result.Available}, nil
 }
 
 func (r *mutationResolver) EditCar(ctx context.Context, input model.EditCar) (*model.Car, error) {
@@ -30,9 +31,10 @@ func (r *mutationResolver) EditCar(ctx context.Context, input model.EditCar) (*m
 	car.ID, _ = primitive.ObjectIDFromHex(input.CarID)
 	car.Make = input.Make
 	car.Name = input.Name
+	car.Price = input.Price
 
 	result := car.Edit()
-	return &model.Car{ID: result.ID.Hex(), Make: result.Make, Name: result.Name, Available: result.Available}, nil
+	return &model.Car{ID: result.ID.Hex(), Make: result.Make, Name: result.Name, Price: result.Price, Available: result.Available}, nil
 }
 
 func (r *mutationResolver) DeleteCar(ctx context.Context, input *model.DeleteCar) (string, error) {
@@ -91,7 +93,7 @@ func (r *mutationResolver) ReserveCar(ctx context.Context, input model.ReserveCa
 	carID, _ := primitive.ObjectIDFromHex(input.CarID)
 
 	updatedUser := user.ReserveCar(carID)
-	return &model.User{ID: updatedUser.ID.Hex(), Name: updatedUser.Name, Reservation: &model.Car{ID: updatedUser.Reservation.ID.Hex(), Make: updatedUser.Reservation.Make, Name: updatedUser.Reservation.Name}}, nil
+	return &model.User{ID: updatedUser.ID.Hex(), Name: updatedUser.Name, Reservation: &model.Car{ID: updatedUser.Reservation.ID.Hex(), Make: updatedUser.Reservation.Make, Name: updatedUser.Reservation.Name, Price: updatedUser.Reservation.Price}}, nil
 }
 
 func (r *mutationResolver) ReturnCar(ctx context.Context, input model.ReturnCar) (*model.User, error) {
@@ -112,7 +114,7 @@ func (r *queryResolver) Cars(ctx context.Context) ([]*model.Car, error) {
 
 	carsData = cars.Get()
 	for _, car := range carsData {
-		results = append(results, &model.Car{ID: car.ID.Hex(), Make: car.Make, Name: car.Name, Available: car.Available})
+		results = append(results, &model.Car{ID: car.ID.Hex(), Make: car.Make, Name: car.Name, Price: car.Price, Available: car.Available})
 	}
 	return results, nil
 }
@@ -120,10 +122,13 @@ func (r *queryResolver) Cars(ctx context.Context) ([]*model.Car, error) {
 func (r *queryResolver) Users(ctx context.Context) ([]*model.User, error) {
 	results := []*model.User{}
 	usersData := []users.User{}
+	reservation := model.Car{}
 
 	usersData = users.Get()
 	for _, user := range usersData {
-		reservation := model.Car{ID: user.Reservation.ID.Hex(), Make: user.Reservation.Make, Name: user.Reservation.Name}
+		if user.Reservation != nil {
+			reservation = model.Car{ID: user.Reservation.ID.Hex(), Make: user.Reservation.Make, Name: user.Reservation.Name}
+		}
 		results = append(results, &model.User{ID: user.ID.Hex(), Name: user.Name, Reservation: &reservation})
 	}
 	return results, nil

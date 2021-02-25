@@ -48,6 +48,7 @@ type ComplexityRoot struct {
 		ID        func(childComplexity int) int
 		Make      func(childComplexity int) int
 		Name      func(childComplexity int) int
+		Price     func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -130,6 +131,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Car.Name(childComplexity), true
+
+	case "Car.price":
+		if e.complexity.Car.Price == nil {
+			break
+		}
+
+		return e.complexity.Car.Price(childComplexity), true
 
 	case "Mutation.addCar":
 		if e.complexity.Mutation.AddCar == nil {
@@ -330,6 +338,7 @@ var sources = []*ast.Source{
   id: ID!
   make: String!
   name: String!
+  price: Int!
   available: Boolean!
 }
 
@@ -347,6 +356,7 @@ type Query {
 input NewCar {
   make: String!
   name: String!
+  price: Int!
   available: Boolean!
 }
 
@@ -354,6 +364,7 @@ input EditCar {
   carId: ID!
   make: String!
   name: String!
+  price: Int!
   available: Boolean!
 }
 
@@ -677,6 +688,41 @@ func (ec *executionContext) _Car_name(ctx context.Context, field graphql.Collect
 	res := resTmp.(string)
 	fc.Result = res
 	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Car_price(ctx context.Context, field graphql.CollectedField, obj *model.Car) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Car",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   false,
+		IsResolver: false,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Price, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(int)
+	fc.Result = res
+	return ec.marshalNInt2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) _Car_available(ctx context.Context, field graphql.CollectedField, obj *model.Car) (ret graphql.Marshaler) {
@@ -2430,6 +2476,14 @@ func (ec *executionContext) unmarshalInputEditCar(ctx context.Context, obj inter
 			if err != nil {
 				return it, err
 			}
+		case "price":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price"))
+			it.Price, err = ec.unmarshalNInt2int(ctx, v)
+			if err != nil {
+				return it, err
+			}
 		case "available":
 			var err error
 
@@ -2491,6 +2545,14 @@ func (ec *executionContext) unmarshalInputNewCar(ctx context.Context, obj interf
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			it.Name, err = ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		case "price":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("price"))
+			it.Price, err = ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -2627,6 +2689,11 @@ func (ec *executionContext) _Car(ctx context.Context, sel ast.SelectionSet, obj 
 			}
 		case "name":
 			out.Values[i] = ec._Car_name(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "price":
+			out.Values[i] = ec._Car_price(ctx, field, obj)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -3127,6 +3194,21 @@ func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface
 
 func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
 	res := graphql.MarshalID(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "must not be null")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNInt2int(ctx context.Context, v interface{}) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "must not be null")

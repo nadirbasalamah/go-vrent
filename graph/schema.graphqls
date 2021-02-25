@@ -2,6 +2,7 @@ type Car {
   id: ID!
   make: String!
   name: String!
+  price: Int!
   available: Boolean!
 }
 
@@ -19,6 +20,7 @@ type Query {
 input NewCar {
   make: String!
   name: String!
+  price: Int!
   available: Boolean!
 }
 
@@ -26,6 +28,7 @@ input EditCar {
   carId: ID!
   make: String!
   name: String!
+  price: Int!
   available: Boolean!
 }
 

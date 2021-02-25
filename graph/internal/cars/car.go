@@ -14,6 +14,7 @@ type Car struct {
 	ID        primitive.ObjectID `bson:"_id,omitempty"`
 	Make      string             `bson:"make"`
 	Name      string             `bson:"name"`
+	Price     int                `bson:"price"`
 	Available bool               `bson:"available"`
 }
 
@@ -24,6 +25,7 @@ func (car Car) Add() Car {
 	data := Car{
 		Make:      car.Make,
 		Name:      car.Name,
+		Price:     car.Price,
 		Available: true,
 	}
 
@@ -56,6 +58,7 @@ func (car Car) Edit() Car {
 
 	data.Make = car.Make
 	data.Name = car.Name
+	data.Price = car.Price
 	data.Available = car.Available
 
 	_, updateErr := collection.ReplaceOne(context.Background(), filter, data)
