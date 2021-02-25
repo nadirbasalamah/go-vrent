@@ -94,6 +94,18 @@ func (r *mutationResolver) ReserveCar(ctx context.Context, input model.ReserveCa
 	return &model.User{ID: updatedUser.ID.Hex(), Name: updatedUser.Name, Reservation: &model.Car{ID: updatedUser.Reservation.ID.Hex(), Make: updatedUser.Reservation.Make, Name: updatedUser.Reservation.Name}}, nil
 }
 
+func (r *mutationResolver) ReturnCar(ctx context.Context, input model.ReturnCar) (*model.User, error) {
+	user := auth.ForContext(ctx)
+	if user == nil {
+		return &model.User{}, fmt.Errorf("access denied")
+	}
+
+	carID, _ := primitive.ObjectIDFromHex(input.CarID)
+
+	updatedUser := user.ReturnCar(carID)
+	return &model.User{ID: updatedUser.ID.Hex(), Name: updatedUser.Name, Reservation: nil}, nil
+}
+
 func (r *queryResolver) Cars(ctx context.Context) ([]*model.Car, error) {
 	results := []*model.Car{}
 	carsData := []cars.Car{}

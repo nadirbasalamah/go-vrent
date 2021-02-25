@@ -44,6 +44,10 @@ type ReserveCar struct {
 	CarID string `json:"carId"`
 }
 
+type ReturnCar struct {
+	CarID string `json:"carId"`
+}
+
 type User struct {
 	ID          string `json:"id"`
 	Name        string `json:"name"`

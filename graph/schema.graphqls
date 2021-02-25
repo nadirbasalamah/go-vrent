@@ -51,6 +51,10 @@ input ReserveCar {
   carId: ID!
 }
 
+input ReturnCar {
+  carId: ID!
+}
+
 type Mutation {
   addCar(input: NewCar!): Car!
   editCar(input: EditCar!): Car!
@@ -59,4 +63,5 @@ type Mutation {
   login(input: Login!): String!
   refreshToken(input: RefreshTokenInput!): String!
   reserveCar(input: ReserveCar!): User!
+  returnCar(input: ReturnCar!): User!
 }

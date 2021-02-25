@@ -118,7 +118,47 @@ func (user *User) ReserveCar(carID primitive.ObjectID) User {
 	}
 
 	reservedCar := cars.FindCar(carID)
-	data.Reservation = reservedCar
+
+	if reservedCar.Available {
+		data.Reservation = reservedCar
+		reservedCar.Available = false
+		reservedCar.Edit()
+	} else {
+		log.Fatal("Car is not available for reservation")
+		return User{}
+	}
+
+	_, updateErr := collection.ReplaceOne(context.Background(), filter, data)
+	if updateErr != nil {
+		log.Fatalf("Cannot update object in mongoDB: %v", updateErr)
+		return User{}
+	}
+	return *data
+}
+
+// ReturnCar to return a car after being reserved by authenticated user
+func (user *User) ReturnCar(carID primitive.ObjectID) User {
+	collection := database.Database.Collection("user")
+
+	data := &User{}
+	filter := bson.M{"_id": user.ID}
+
+	res := collection.FindOne(context.Background(), filter)
+	if err := res.Decode(data); err != nil {
+		log.Fatalf("Cannot find user with specified ID: %v", err)
+		return User{}
+	}
+
+	reservedCar := cars.FindCar(carID)
+
+	if data.Reservation.ID == reservedCar.ID {
+		data.Reservation = nil
+		reservedCar.Available = true
+		reservedCar.Edit()
+	} else {
+		log.Fatalln("Car data not found")
+		return User{}
+	}
 
 	_, updateErr := collection.ReplaceOne(context.Background(), filter, data)
 	if updateErr != nil {

@@ -56,6 +56,7 @@ func (car Car) Edit() Car {
 
 	data.Make = car.Make
 	data.Name = car.Name
+	data.Available = car.Available
 
 	_, updateErr := collection.ReplaceOne(context.Background(), filter, data)
 	if updateErr != nil {

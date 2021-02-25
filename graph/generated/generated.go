@@ -58,6 +58,7 @@ type ComplexityRoot struct {
 		Login        func(childComplexity int, input model.Login) int
 		RefreshToken func(childComplexity int, input model.RefreshTokenInput) int
 		ReserveCar   func(childComplexity int, input model.ReserveCar) int
+		ReturnCar    func(childComplexity int, input model.ReturnCar) int
 	}
 
 	Query struct {
@@ -80,6 +81,7 @@ type MutationResolver interface {
 	Login(ctx context.Context, input model.Login) (string, error)
 	RefreshToken(ctx context.Context, input model.RefreshTokenInput) (string, error)
 	ReserveCar(ctx context.Context, input model.ReserveCar) (*model.User, error)
+	ReturnCar(ctx context.Context, input model.ReturnCar) (*model.User, error)
 }
 type QueryResolver interface {
 	Cars(ctx context.Context) ([]*model.Car, error)
@@ -212,6 +214,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.Mutation.ReserveCar(childComplexity, args["input"].(model.ReserveCar)), true
+
+	case "Mutation.returnCar":
+		if e.complexity.Mutation.ReturnCar == nil {
+			break
+		}
+
+		args, err := ec.field_Mutation_returnCar_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.Mutation.ReturnCar(childComplexity, args["input"].(model.ReturnCar)), true
 
 	case "Query.cars":
 		if e.complexity.Query.Cars == nil {
@@ -365,6 +379,10 @@ input ReserveCar {
   carId: ID!
 }
 
+input ReturnCar {
+  carId: ID!
+}
+
 type Mutation {
   addCar(input: NewCar!): Car!
   editCar(input: EditCar!): Car!
@@ -373,6 +391,7 @@ type Mutation {
   login(input: Login!): String!
   refreshToken(input: RefreshTokenInput!): String!
   reserveCar(input: ReserveCar!): User!
+  returnCar(input: ReturnCar!): User!
 }
 `, BuiltIn: false},
 }
@@ -479,6 +498,21 @@ func (ec *executionContext) field_Mutation_reserveCar_args(ctx context.Context, 
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
 		arg0, err = ec.unmarshalNReserveCar2githubᚗcomᚋnadirbasalamahᚋgoᚑvrentᚋgraphᚋmodelᚐReserveCar(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["input"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_Mutation_returnCar_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.ReturnCar
+	if tmp, ok := rawArgs["input"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
+		arg0, err = ec.unmarshalNReturnCar2githubᚗcomᚋnadirbasalamahᚋgoᚑvrentᚋgraphᚋmodelᚐReturnCar(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -958,6 +992,48 @@ func (ec *executionContext) _Mutation_reserveCar(ctx context.Context, field grap
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
 		return ec.resolvers.Mutation().ReserveCar(rctx, args["input"].(model.ReserveCar))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋnadirbasalamahᚋgoᚑvrentᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) _Mutation_returnCar(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	fc := &graphql.FieldContext{
+		Object:     "Mutation",
+		Field:      field,
+		Args:       nil,
+		IsMethod:   true,
+		IsResolver: true,
+	}
+
+	ctx = graphql.WithFieldContext(ctx, fc)
+	rawArgs := field.ArgumentMap(ec.Variables)
+	args, err := ec.field_Mutation_returnCar_args(ctx, rawArgs)
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	fc.Args = args
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.Mutation().ReturnCar(rctx, args["input"].(model.ReturnCar))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2500,6 +2576,26 @@ func (ec *executionContext) unmarshalInputReserveCar(ctx context.Context, obj in
 	return it, nil
 }
 
+func (ec *executionContext) unmarshalInputReturnCar(ctx context.Context, obj interface{}) (model.ReturnCar, error) {
+	var it model.ReturnCar
+	var asMap = obj.(map[string]interface{})
+
+	for k, v := range asMap {
+		switch k {
+		case "carId":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("carId"))
+			it.CarID, err = ec.unmarshalNID2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+		}
+	}
+
+	return it, nil
+}
+
 // endregion **************************** input.gotpl *****************************
 
 // region    ************************** interface.gotpl ***************************
@@ -2597,6 +2693,11 @@ func (ec *executionContext) _Mutation(ctx context.Context, sel ast.SelectionSet)
 			}
 		case "reserveCar":
 			out.Values[i] = ec._Mutation_reserveCar(ctx, field)
+			if out.Values[i] == graphql.Null {
+				invalids++
+			}
+		case "returnCar":
+			out.Values[i] = ec._Mutation_returnCar(ctx, field)
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
@@ -3056,6 +3157,11 @@ func (ec *executionContext) unmarshalNRefreshTokenInput2githubᚗcomᚋnadirbasa
 
 func (ec *executionContext) unmarshalNReserveCar2githubᚗcomᚋnadirbasalamahᚋgoᚑvrentᚋgraphᚋmodelᚐReserveCar(ctx context.Context, v interface{}) (model.ReserveCar, error) {
 	res, err := ec.unmarshalInputReserveCar(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) unmarshalNReturnCar2githubᚗcomᚋnadirbasalamahᚋgoᚑvrentᚋgraphᚋmodelᚐReturnCar(ctx context.Context, v interface{}) (model.ReturnCar, error) {
+	res, err := ec.unmarshalInputReturnCar(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
